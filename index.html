@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paints</title>
+    <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
+    <script>
+        const skapi = new Skapi("ap22MXeGjqdJjon79Sdw", "a4dd8739-ceac-4fec-b708-8019b3cf131a");
+    </script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="container">
+        <label>Choose your artist style:</label>
+        <br>
+        <select id="artists">
+            <option >Van Gogh</option>
+            <option>Salvador Dali</option>
+            <option>Frida Kahlo</option>
+            <option>Picasso</option>
+        </select>
+        <div id="image-container"></div>
+        <form onsubmit="generateImage()">
+            <input type="text" id="description" placeholder="Describe your image:">
+            <input type="submit" value="Send" id="send">
+        </form>
+    </div>
+
+    <script>
+
+        function generateImage(){
+            event.preventDefault();
+
+            let imageContainer = document.getElementById('image-container');
+            
+            imageContainer.innerHTML = 'Loading...'
+
+            let description = document.getElementById('description').value;
+            let artist = document.getElementById('artists').value;
+
+            skapi.clientSecretRequest(
+                {
+                    clientSecretName: 'openai',
+                    url: 'https://api.openai.com/v1/images/generations',
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer $CLIENT_SECRET'
+                    },
+                    data:{
+                        prompt: `${description} in ${artist} style`,
+                        n: 1,
+                        size: '256x256'
+                    }
+                }
+            ).then(response => {
+                console.log(response)
+                imageContainer.innerHTML = `<img src="${response.data[0].url}">`
+            }).catch(error => {
+                alert('There was a problem.')
+                console.log(error)
+            })
+        }
+    </script>
+</body>
+</html>
